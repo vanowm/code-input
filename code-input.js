@@ -332,6 +332,13 @@ var codeInput = {
         static formAssociated = true;
 
         /**
+        * expose children elements
+        */
+        TEXTAREA = null;
+        PRE = null;
+        CODE = null;
+
+        /**
          * When events are transferred to the textarea element, callbacks
          * are bound to set the this variable to the code-input element
          * rather than the textarea. This allows the callback to be converted
@@ -378,10 +385,10 @@ var codeInput = {
             this.ignoreValueUpdate = true;
             this.value = value;
             this.ignoreValueUpdate = false;
-            if (this.querySelector("textarea").value != value) this.querySelector("textarea").value = value;
+            if (this.TEXTAREA.value != value) this.TEXTAREA.value = value;
 
 
-            let resultElement = this.querySelector("pre code");
+            let resultElement = this.CODE;
 
             // Handle final newlines
             if (value[value.length - 1] == "\n") {
@@ -403,8 +410,8 @@ var codeInput = {
          * Synchronise the scrolling of the textarea to the result element.
          */
         syncScroll() {
-            let inputElement = this.querySelector("textarea");
-            let resultElement = this.template.preElementStyled ? this.querySelector("pre") : this.querySelector("pre code");
+            let inputElement = this.TEXTAREA;
+            let resultElement = this.template.preElementStyled ? this.PRE : this.CODE;
 
             resultElement.scrollTop = inputElement.scrollTop;
             resultElement.scrollLeft = inputElement.scrollLeft;
@@ -486,6 +493,10 @@ var codeInput = {
             pre.append(code);
             this.append(pre);
 
+            this.TEXTAREA = textarea;
+            this.PRE = pre;
+            this.CODE = code;
+
             if (this.template.isCode) {
                 if (lang != undefined && lang != "") {
                     code.classList.add("language-" + lang);
@@ -558,7 +569,7 @@ var codeInput = {
                         this.value = newValue;
                         break;
                     case "placeholder":
-                        this.querySelector("textarea").placeholder = newValue;
+                        this.TEXTAREA.placeholder = newValue;
                         break;
                     case "template":
                         this.template = codeInput.usedTemplates[newValue || codeInput.defaultTemplate];
@@ -571,8 +582,8 @@ var codeInput = {
 
                     case "lang":
 
-                        let code = this.querySelector("pre code");
-                        let mainTextarea = this.querySelector("textarea");
+                        let code = this.CODE;
+                        let mainTextarea = this.TEXTAREA;
 
                         // Check not already updated
                         if (newValue != null) {
@@ -604,7 +615,7 @@ var codeInput = {
                         break;
                     default:
                         if (codeInput.textareaSyncAttributes.includes(name)) {
-                            this.querySelector("textarea").setAttribute(name, newValue);
+                            this.TEXTAREA.setAttribute(name, newValue);
                         }
                         break;
                 }
@@ -627,9 +638,9 @@ var codeInput = {
 
             if (codeInput.textareaSyncEvents.includes(type)) {
                 if (options === undefined) {
-                    this.querySelector("textarea").addEventListener(type, boundCallback);
+                    this.TEXTAREA.addEventListener(type, boundCallback);
                 } else {
-                    this.querySelector("textarea").addEventListener(type, boundCallback, options);
+                    this.TEXTAREA.addEventListener(type, boundCallback, options);
                 }
             } else {
                 if (options === undefined) {
@@ -647,15 +658,15 @@ var codeInput = {
             let boundCallback = this.boundEventCallbacks[listener];
             if (type == "change") {
                 if (options === null) {
-                    this.querySelector("textarea").removeEventListener("change", boundCallback);
+                    this.TEXTAREA.removeEventListener("change", boundCallback);
                 } else {
-                    this.querySelector("textarea").removeEventListener("change", boundCallback, options);
+                    this.TEXTAREA.removeEventListener("change", boundCallback, options);
                 }
             } else if (type == "selectionchange") {
                 if (options === null) {
-                    this.querySelector("textarea").removeEventListener("selectionchange", boundCallback);
+                    this.TEXTAREA.removeEventListener("selectionchange", boundCallback);
                 } else {
-                    this.querySelector("textarea").removeEventListener("selectionchange", boundCallback, options);
+                    this.TEXTAREA.removeEventListener("selectionchange", boundCallback, options);
                 }
             } else {
                 super.removeEventListener(type, listener, options);
@@ -702,7 +713,7 @@ var codeInput = {
          * See `HTMLTextAreaElement.validity`
          */
         get validity() {
-            return this.querySelector("textarea").validity;
+            return this.TEXTAREA.validity;
         }
 
         /**
@@ -713,7 +724,7 @@ var codeInput = {
          * See `HTMLTextAreaElement.validationMessage`
          */
         get validationMessage() {
-            return this.querySelector("textarea").validationMessage;
+            return this.TEXTAREA.validationMessage;
         }
 
         /**
@@ -723,7 +734,7 @@ var codeInput = {
          * @param error Sets a custom error message that is displayed when a form is submitted.
          */
         setCustomValidity(error) {
-            return this.querySelector("textarea").setCustomValidity(error);
+            return this.TEXTAREA.setCustomValidity(error);
         }
 
         /**
@@ -733,14 +744,14 @@ var codeInput = {
          * See `HTMLTextAreaElement.checkValidity`
          */
         checkValidity() {
-            return this.querySelector("textarea").checkValidity();
+            return this.TEXTAREA.checkValidity();
         }
 
         /**
          * See `HTMLTextAreaElement.reportValidity`
          */
         reportValidity() {
-            return this.querySelector("textarea").reportValidity();
+            return this.TEXTAREA.reportValidity();
         }
 
 
@@ -749,17 +760,17 @@ var codeInput = {
          */
         setAttribute(qualifiedName, value) {
             super.setAttribute(qualifiedName, value); // code-input
-            this.querySelector("textarea").setAttribute(qualifiedName, value); // textarea
+            this.TEXTAREA.setAttribute(qualifiedName, value); // textarea
         }
 
         /**
          * @override
          */
         getAttribute(qualifiedName) {
-            if (this.querySelector("textarea") == null) {
+            if (this.TEXTAREA == null) {
                 return super.getAttribute(qualifiedName);
             }
-            return this.querySelector("textarea").getAttribute(qualifiedName); // textarea
+            return this.TEXTAREA.getAttribute(qualifiedName); // textarea
         }
 
         /**
@@ -773,7 +784,7 @@ var codeInput = {
         * Update value on form reset
         */
         formResetCallback() {
-            this.update(this.querySelector("textarea").value);
+            this.update(this.TEXTAREA.value);
         }
     }
 }
